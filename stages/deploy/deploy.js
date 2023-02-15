@@ -18,17 +18,21 @@ function git(cmd, args = "") {// : string
     //console.log(out);
 }
 
-function changes_to_deploy_files_found(){// : boolean
+function mute_lf_warning() {// : void
+    git("config --global core.safecrlf false");
+}
+
+function changes_to_deploy_files_found() {// : boolean
     var change = false;
     var status = git("ls-files --deleted --modified --others --exclude-standard -- :/");
-    if(status.includes("fylke.") || status.includes("kommune.") || status.includes("dummy.")){
+    if (status.includes("fylke.") || status.includes("kommune.") || status.includes("dummy.")) {
         change = true;
     }
     return change;
 }
 
 // check if upstream exists
-function check_if_upstream_exists() {// void, setting bool-var
+function check_if_upstream_exists() {// : void, setting bool-var
     try {
         let remotes = git("remote -v");
         //console.log(remotes);
@@ -85,20 +89,20 @@ function make_new_commit() {
 
 function getShaOfLastCommit() { //-> string: msg
     try {
-        let msg = git('rev-parse HEAD').replace("\n","");
+        let msg = git('rev-parse HEAD').replace("\n", "");
         //console.log(msg);
         return msg;
     } catch (e) {
         //...jadajada..
         console.log("Error: " + e);
-    } 
+    }
 }
 
 function deploy_with_push() { // void
     try {
         //let msg = git("push --force -u upstream master");  //git push -u gh_nd_brreg main
         let lastsha = getShaOfLastCommit();
-        let cmd = "push deployrepo "+lastsha+":master";
+        let cmd = "push deployrepo " + lastsha + ":master";
         let msg = git(cmd);
         //git push <remotename> <commit SHA>:<remotebranchname>
         console.log(msg);
@@ -110,14 +114,15 @@ function deploy_with_push() { // void
 
 //The steps
 console.log("\n**********  Running deploy for kommune-lastejobb  **********\n");
+mute_lf_warning();
 check_if_upstream_exists();
 add_deployrepo_if_not_added();
-if(changes_to_deploy_files_found()){
+if (changes_to_deploy_files_found()) {
     add_new_files_to_be_commited();
     make_new_commit();
     console.log("Deploying to deployrepo: ", getShaOfLastCommit());
     deploy_with_push();
-}else{
+} else {
     console.log("!! Found no changed deployfile, aborting further git tasks (deployfiles are: 'fylke.*' or 'kommune.*' or 'dummy.*' )");
 }
 console.log("\n\n**********  Done  **********\n\n\n");
