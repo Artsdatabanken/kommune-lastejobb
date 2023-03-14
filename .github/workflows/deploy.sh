@@ -1,2 +1,2 @@
 echo "Copying files"
-cp build/* destinationRepo/build
+cp build/* destinationRepo/build/
