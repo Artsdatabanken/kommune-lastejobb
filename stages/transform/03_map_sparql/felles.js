@@ -82,7 +82,7 @@ function flettKoder(r, nivå) {
 
 function flettNaboer(r, nivå) {
   const nabo = lesSparqlOutput(nivå + "nabo");
-  debugger;
+  //debugger;
   nabo.forEach(e => {
     const idFra = e.item.value;
     const idTil = e.shares_border_with.value;
