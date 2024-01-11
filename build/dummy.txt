@@ -1,2 +1,0 @@
---- Skriv noe i denne for å teste deploy/git -logikk ---
-liten endring 15/2-2023 11:51
