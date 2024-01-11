@@ -1,0 +1,43 @@
+name: deploy type to kommune
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps: 
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+      - run: npm install
+      - run: npm run build
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: artsdatabanken/kommune
+          path: './destinationRepo'
+          token: ${{secrets.PUSH_TOKEN}}
+      - name: Run deployment script
+        run: ./.github/workflows/deploy.sh 
+        shell: bash
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "build/*"
+          tag: v_${{ github.run_number }}
+      - name: Push to kommune
+        run: |
+          cd destinationRepo
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "<>"
+          git config --global --list
+          git stage .
+          git commit -m "Updated from kommune-lastejobb v_${{ github.run_number }}"
+          git branch --set-upstream-to master
+          git push https://$USERNAME:$REPO_KEY@github.com/artsdatabanken/kommune.git
+        env:
+          REPO_KEY: ${{secrets.PUSH_TOKEN}}
+          USERNAME: github-actions[bot]
